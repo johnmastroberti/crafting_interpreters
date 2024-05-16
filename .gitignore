@@ -1,2 +1,4 @@
 *.class
 *.jar
+src/Expr.java
+__pycache__
