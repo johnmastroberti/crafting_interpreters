@@ -14,6 +14,7 @@ def main(argv):
     outputDir = argv[1]
 
     writeAst(outputDir, "Expr", *getExpressionDefs())
+    writeAst(outputDir, "Stmt", *getStatementDefs())
 
     sys.exit(0)
 
@@ -79,12 +80,19 @@ def makeVisitorInterface(baseName, *types):
                                      
 
 
-def getExpressionDefs():
+def getDefs(defFile):
     ret = ""
-    with open("tools/expression_defs.txt") as defs:
+    with open(defFile) as defs:
         ret = defs.read().split('\n')
     is_nonempty = lambda x : len(x) > 0
     return [*filter(is_nonempty, ret)]
+
+def getExpressionDefs():
+    return getDefs("tools/expression_defs.txt")
+
+
+def getStatementDefs():
+    return getDefs("tools/statement_defs.txt")
 
 if __name__ == "__main__":
     main(sys.argv)
