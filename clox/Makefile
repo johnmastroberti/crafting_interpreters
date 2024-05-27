@@ -4,7 +4,7 @@ LD = gcc
 DEPDIR := .deps
 OBJDIR := .obj
 
-CFLAGS = -Wall -Wextra -Wpedantic -std=c11 -g -Iinclude
+CFLAGS = -Wall -Wextra -Wpedantic -Wno-unused -std=c11 -g -Iinclude
 DEPFLAGS = -MT $@ -MMD -MP -MF $(DEPDIR)/$*.d
 LDFLAGS = -lm
 
@@ -20,6 +20,10 @@ $(OBJDIR)/%.o: src/%.c $(DEPDIR)/%.d | $(DEPDIR) $(OBJDIR)
 $(DEPDIR): ; @mkdir -p $@
 $(OBJDIR): ; @mkdir -p $@
 
+compile_commands.json:
+	make clean
+	bear -- make
+
 DEPFILES := $(SRCS:src/%.c=$(DEPDIR)/%.d)
 
 $(DEPFILES):
@@ -29,5 +33,7 @@ include $(wildcard $(DEPFILES))
 clean:
 	rm -rf .deps .obj clox
 
-.PHONY: clean
+run: clox
+	./clox
 
+.PHONY: run clean compile_commands.json
