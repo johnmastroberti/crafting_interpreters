@@ -3,8 +3,21 @@
 #include "debug.h"
 #include "value.h"
 
+static const char* op_names[OP_LAST];
+
+static void init_op_names(void) {
+#define ADD_OP_NAME(name) op_names[name] = #name
+  ADD_OP_NAME(OP_CONSTANT);
+  ADD_OP_NAME(OP_ADD);
+  ADD_OP_NAME(OP_SUBTRACT);
+  ADD_OP_NAME(OP_MULTIPLY);
+  ADD_OP_NAME(OP_DIVIDE);
+  ADD_OP_NAME(OP_NEGATE);
+  ADD_OP_NAME(OP_RETURN);
+}
 
 void disassembleChunk(Chunk* chunk, const char* name) {
+  init_op_names();
   printf("== %s ==\n", name);
 
   for (int offset = 0; offset < chunk->code.size; )
@@ -37,10 +50,17 @@ int disassembleInstruction(Chunk* chunk, int offset) {
 
   uint8_t instruction = chunk->code.data[offset];
   switch (instruction) {
+    // Instructions with operands
     case OP_CONSTANT:
       return constantInstruction("OP_CONSTANT", chunk, offset);
+    // Single byte instructions
     case OP_RETURN:
-      return simpleInstruction("OP_RETURN", offset);
+    case OP_NEGATE:
+    case OP_ADD:
+    case OP_SUBTRACT:
+    case OP_MULTIPLY:
+    case OP_DIVIDE:
+      return simpleInstruction(op_names[instruction], offset);
     default:
       printf("Unknown opcode %d\n", instruction);
       return offset + 1;

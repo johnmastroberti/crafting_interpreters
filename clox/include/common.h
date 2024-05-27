@@ -7,3 +7,5 @@
 #include <stdlib.h>
 
 #define MAX(A,B) ((A) > (B) ? (A) : (B))
+
+#define DEBUG_TRACE_EXECUTION

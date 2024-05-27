@@ -5,7 +5,13 @@
 
 typedef enum {
   OP_CONSTANT,
+  OP_ADD,
+  OP_SUBTRACT,
+  OP_MULTIPLY,
+  OP_DIVIDE,
+  OP_NEGATE,
   OP_RETURN,
+  OP_LAST
 } OpCode;
 
 VECTOR_DECL(ByteArray, uint8_t)
