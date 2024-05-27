@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <assert.h>
 #include "vm.h"
 #include "value.h"
 #include "debug.h"
@@ -7,7 +8,20 @@ static InterpretResult run(void);
 
 static VM vm;
 
+static void grow_stack(size_t newsize) {
+  printf("\n*** Growing stack to %ld ***\n", newsize);
+  assert(newsize >= vm.stack_size);
+  size_t stack_top_sz = vm.stackTop - vm.stack;
+  vm.stack = realloc(vm.stack, newsize * sizeof(Value));
+  assert(vm.stack != NULL);
+  vm.stackTop = vm.stack + stack_top_sz;
+  vm.stack_size = newsize;
+}
+
+
 void initVM(void) {
+  vm.stack_size = 5;
+  vm.stack = malloc(vm.stack_size * sizeof(Value));
   vm.stackTop = vm.stack;
 }
 
@@ -69,6 +83,8 @@ static InterpretResult run(void) {
 
 
 void push(Value value) {
+  if ((size_t) (vm.stackTop - vm.stack) == vm.stack_size)
+    grow_stack(vm.stack_size * 2);
   *vm.stackTop = value;
   ++vm.stackTop;
 }
