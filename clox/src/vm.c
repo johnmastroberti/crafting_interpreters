@@ -2,6 +2,7 @@
 #include "vm.h"
 #include "value.h"
 #include "debug.h"
+#include "compiler.h"
 
 static InterpretResult run(void);
 
@@ -13,10 +14,9 @@ void initVM(void) {
 
 void freeVM(void) {}
 
-InterpretResult interpret(Chunk* chunk) {
-  vm.chunk = chunk;
-  vm.ip = vm.chunk->code.data;
-  return run();
+InterpretResult interpret(const char* source) {
+  compile(source);
+  return INTERPRET_OK;
 }
 
 static InterpretResult run(void) {
