@@ -14,6 +14,13 @@ static void init_op_names(void) {
   ADD_OP_NAME(OP_DIVIDE);
   ADD_OP_NAME(OP_NEGATE);
   ADD_OP_NAME(OP_RETURN);
+  ADD_OP_NAME(OP_NIL);
+  ADD_OP_NAME(OP_TRUE);
+  ADD_OP_NAME(OP_FALSE);
+  ADD_OP_NAME(OP_NOT);
+  ADD_OP_NAME(OP_EQUAL);
+  ADD_OP_NAME(OP_GREATER);
+  ADD_OP_NAME(OP_LESS);
 }
 
 void disassembleChunk(Chunk* chunk, const char* name) {
@@ -60,6 +67,13 @@ int disassembleInstruction(Chunk* chunk, int offset) {
     case OP_SUBTRACT:
     case OP_MULTIPLY:
     case OP_DIVIDE:
+    case OP_NIL:
+    case OP_TRUE:
+    case OP_FALSE:
+    case OP_NOT:
+    case OP_EQUAL:
+    case OP_GREATER:
+    case OP_LESS:
       return simpleInstruction(op_names[instruction], offset);
     default:
       printf("Unknown opcode %d\n", instruction);
