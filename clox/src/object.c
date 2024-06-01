@@ -44,6 +44,7 @@ static ObjString* allocateString(char* chars, int length,
   string->length = length;
   string->chars = chars;
   string->hash = hash;
+  tableSet(&get_VM()->strings, string, NIL_VAL);
   return string;
 }
 

@@ -46,6 +46,11 @@ static Entry* findEntry(Entry* entries, int capacity,
 
 static void adjustCapacity(Table* table, int capacity) {
   Table new_table;
+  init_Table(&new_table);
+
+  // Avoid adjusting to zero capacity
+  capacity = MAX(capacity, 8);
+
   reserve_Table(&new_table, capacity);
   // Zero out all new buckets
   for (int i = 0; i < capacity; ++i) {
@@ -120,7 +125,7 @@ ObjString* tableFindString(Table* table, const char* chars,
       // Found it
       return entry->key;
     }
+    index = (index + 1) % table->capacity;
   }
 
-  index = (index + 1) % table->capacity;
 }

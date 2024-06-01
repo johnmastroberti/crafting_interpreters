@@ -21,6 +21,11 @@ static void init_op_names(void) {
   ADD_OP_NAME(OP_EQUAL);
   ADD_OP_NAME(OP_GREATER);
   ADD_OP_NAME(OP_LESS);
+  ADD_OP_NAME(OP_PRINT);
+  ADD_OP_NAME(OP_POP);
+  ADD_OP_NAME(OP_DEFINE_GLOBAL);
+  ADD_OP_NAME(OP_GET_GLOBAL);
+  ADD_OP_NAME(OP_SET_GLOBAL);
 }
 
 void disassembleChunk(Chunk* chunk, const char* name) {
@@ -59,7 +64,11 @@ int disassembleInstruction(Chunk* chunk, int offset) {
   switch (instruction) {
     // Instructions with operands
     case OP_CONSTANT:
-      return constantInstruction("OP_CONSTANT", chunk, offset);
+    case OP_DEFINE_GLOBAL:
+    case OP_GET_GLOBAL:
+    case OP_SET_GLOBAL:
+      return constantInstruction(op_names[instruction], 
+          chunk, offset);
     // Single byte instructions
     case OP_RETURN:
     case OP_NEGATE:
@@ -74,6 +83,8 @@ int disassembleInstruction(Chunk* chunk, int offset) {
     case OP_EQUAL:
     case OP_GREATER:
     case OP_LESS:
+    case OP_PRINT:
+    case OP_POP:
       return simpleInstruction(op_names[instruction], offset);
     default:
       printf("Unknown opcode %d\n", instruction);
