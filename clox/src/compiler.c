@@ -3,6 +3,7 @@
 #include "compiler.h"
 #include "common.h"
 #include "scanner.h"
+#include "object.h"
 
 #ifdef DEBUG_PRINT_CODE
 #include "debug.h"
@@ -53,6 +54,7 @@ static void emitReturn(void);
 static void emitBytes(uint8_t, uint8_t);
 static void expression(void);
 static void number(void);
+static void string(void);
 static void literal(void);
 static void emitConstant(Value value);
 static uint8_t makeConstant(Value value);
@@ -83,7 +85,7 @@ static ParseRule rules[] = {
   [TOKEN_LESS]            = {NULL,     binary,   PREC_COMPARISON},
   [TOKEN_LESS_EQUAL]      = {NULL,     binary,   PREC_COMPARISON},
   [TOKEN_IDENTIFIER]      = {NULL,     NULL,     PREC_NONE},   
-  [TOKEN_STRING]          = {NULL,     NULL,     PREC_NONE},
+  [TOKEN_STRING]          = {string,   NULL,     PREC_NONE},
   [TOKEN_NUMBER]          = {number,   NULL,     PREC_NONE},
   [TOKEN_AND]             = {NULL,     NULL,     PREC_NONE},
   [TOKEN_CLASS]           = {NULL,     NULL,     PREC_NONE},
@@ -230,6 +232,11 @@ static void expression(void) {
 static void number(void) {
   double value = strtod(parser.previous.start, NULL);
   emitConstant(NUMBER_VAL(value));
+}
+
+static void string(void) {
+  emitConstant(OBJ_VAL(copyString(parser.previous.start + 1,
+          parser.previous.length - 2)));
 }
 
 static void literal(void) {

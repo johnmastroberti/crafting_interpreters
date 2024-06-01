@@ -6,7 +6,7 @@ OBJDIR := .obj
 
 CFLAGS = -Wall -Wextra -Wpedantic -Wno-unused -std=c11 -g -Iinclude
 DEPFLAGS = -MT $@ -MMD -MP -MF $(DEPDIR)/$*.d
-LDFLAGS = -lm
+LDFLAGS = -lm 
 
 SRCS = $(shell find src -type f)
 OBJS = $(SRCS:src/%.c=.obj/%.o)
