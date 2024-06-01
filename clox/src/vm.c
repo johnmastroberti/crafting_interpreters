@@ -21,9 +21,11 @@ static void concatenate(void);
 void initVM(void) {
   resetStack();
   vm.objects = NULL;
+  init_Table(&vm.strings);
 }
 
 void freeVM(void) {
+  free_Table(&vm.strings);
   freeObjects();
 }
 
