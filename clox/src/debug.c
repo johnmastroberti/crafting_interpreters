@@ -26,6 +26,8 @@ static void init_op_names(void) {
   ADD_OP_NAME(OP_DEFINE_GLOBAL);
   ADD_OP_NAME(OP_GET_GLOBAL);
   ADD_OP_NAME(OP_SET_GLOBAL);
+  ADD_OP_NAME(OP_GET_LOCAL);
+  ADD_OP_NAME(OP_SET_LOCAL);
 }
 
 void disassembleChunk(Chunk* chunk, const char* name) {
@@ -50,6 +52,13 @@ static int constantInstruction(const char* name, Chunk* chunk,
   return offset + 2;
 }
 
+static int byteInstruction(const char* name, Chunk* chunk,
+    int offset) {
+  uint8_t slot = chunk->code.data[offset + 1];
+  printf("%-16s %4d\n", name, slot);
+  return offset + 2;
+}
+
 int disassembleInstruction(Chunk* chunk, int offset) {
   printf("%04d ", offset);
 
@@ -68,6 +77,10 @@ int disassembleInstruction(Chunk* chunk, int offset) {
     case OP_GET_GLOBAL:
     case OP_SET_GLOBAL:
       return constantInstruction(op_names[instruction], 
+          chunk, offset);
+    case OP_GET_LOCAL:
+    case OP_SET_LOCAL:
+      return byteInstruction(op_names[instruction], 
           chunk, offset);
     // Single byte instructions
     case OP_RETURN:
