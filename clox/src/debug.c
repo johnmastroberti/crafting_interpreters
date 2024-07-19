@@ -28,6 +28,8 @@ static void init_op_names(void) {
   ADD_OP_NAME(OP_SET_GLOBAL);
   ADD_OP_NAME(OP_GET_LOCAL);
   ADD_OP_NAME(OP_SET_LOCAL);
+  ADD_OP_NAME(OP_JUMP);
+  ADD_OP_NAME(OP_JUMP_IF_FALSE);
 }
 
 void disassembleChunk(Chunk* chunk, const char* name) {
@@ -59,6 +61,15 @@ static int byteInstruction(const char* name, Chunk* chunk,
   return offset + 2;
 }
 
+static int jumpInstruction(const char* name, int sign,
+    Chunk* chunk, int offset) {
+  uint16_t jump = (uint16_t) (chunk->code.data[offset+1] << 8);
+  jump |= chunk->code.data[offset+2];
+  printf("%-16s %4d -> %d\n", name, offset,
+      offset + 3 + sign * jump);
+  return offset + 3;
+}
+
 int disassembleInstruction(Chunk* chunk, int offset) {
   printf("%04d ", offset);
 
@@ -82,6 +93,10 @@ int disassembleInstruction(Chunk* chunk, int offset) {
     case OP_SET_LOCAL:
       return byteInstruction(op_names[instruction], 
           chunk, offset);
+    case OP_JUMP:
+    case OP_JUMP_IF_FALSE:
+      return jumpInstruction(op_names[instruction],
+          1, chunk, offset);
     // Single byte instructions
     case OP_RETURN:
     case OP_NEGATE:
