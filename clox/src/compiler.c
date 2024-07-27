@@ -88,6 +88,7 @@ static uint8_t identifierConstant(Token* name);
 static void defineVariable(uint8_t global);
 static int emitJump(uint8_t instruction);
 static void patchJump(int offset);
+static void emitLoop(int loopStart);
 
 // Name resolution
 static void declareVariable(void);
@@ -117,6 +118,7 @@ static void printStatement(void);
 static void expressionStatement(void);
 static void ifStatement(void);
 static void whileStatement(void);
+static void forStatement(void);
 
 // Parse table
 static ParseRule rules[] = {
@@ -383,6 +385,8 @@ static void statement(void) {
     printStatement();
   } else if (match(TOKEN_IF)) {
     ifStatement();
+  } else if (match(TOKEN_FOR)) {
+    forStatement();
   } else if (match(TOKEN_WHILE)) {
     whileStatement();
   } else if (match(TOKEN_LEFT_BRACE)) {
@@ -641,4 +645,56 @@ static void whileStatement(void) {
 
   patchJump(exitJump);
   emitByte(OP_POP);
+}
+
+static void emitLoop(int loopStart) {
+  emitByte(OP_LOOP);
+
+  int offset = currentChunk()->code.size - loopStart + 2;
+  if (offset > UINT16_MAX) error("Loop body too large");
+
+  emitByte((offset >> 8) & 0xff);
+  emitByte(offset & 0xff);
+}
+
+static void forStatement(void) {
+  beginScope();
+  consume(TOKEN_LEFT_PAREN, "Expect '(' after 'for'");
+  if (match(TOKEN_SEMICOLON)) {
+    // No initializer
+  } else if (match(TOKEN_VAR)) {
+    varDeclaration();
+  } else {
+    expressionStatement();
+  }
+
+  int loopStart = currentChunk()->code.size;
+  int exitJump = -1;
+  if (!match(TOKEN_SEMICOLON)) {
+    expression();
+    consume(TOKEN_SEMICOLON, "Expect ';' after loop condition");
+    exitJump = emitJump(OP_JUMP_IF_FALSE);
+    emitByte(OP_POP);
+  }
+  if (!match(TOKEN_RIGHT_PAREN)) {
+    int bodyJump = emitJump(OP_JUMP);
+    int incrementStart = currentChunk()->code.size;
+    expression();
+    emitByte(OP_POP);
+    consume(TOKEN_RIGHT_PAREN, "Expect ')' after for clauses");
+
+    emitLoop(loopStart);
+    loopStart = incrementStart;
+    patchJump(bodyJump);
+  }
+
+  statement();
+  emitLoop(loopStart);
+
+  if (exitJump != -1) {
+    patchJump(exitJump);
+    emitByte(OP_POP);
+  }
+
+  endScope();
 }

@@ -30,6 +30,7 @@ static void init_op_names(void) {
   ADD_OP_NAME(OP_SET_LOCAL);
   ADD_OP_NAME(OP_JUMP);
   ADD_OP_NAME(OP_JUMP_IF_FALSE);
+  ADD_OP_NAME(OP_LOOP);
 }
 
 void disassembleChunk(Chunk* chunk, const char* name) {
@@ -95,8 +96,10 @@ int disassembleInstruction(Chunk* chunk, int offset) {
           chunk, offset);
     case OP_JUMP:
     case OP_JUMP_IF_FALSE:
+    case OP_LOOP:
       return jumpInstruction(op_names[instruction],
-          1, chunk, offset);
+          instruction == OP_LOOP ? -1 : +1,
+          chunk, offset);
     // Single byte instructions
     case OP_RETURN:
     case OP_NEGATE:
