@@ -6,6 +6,7 @@
 VECTOR_IMPL(ValueArray, Value)
 
 void printObject(Value value);
+static void printFunction(ObjFunction*);
 
 void printValue(Value value) {
   switch (value.type) {
@@ -40,5 +41,18 @@ void printObject(Value value) {
     case OBJ_STRING:
       printf("%s", AS_CSTRING(value));
       break;
+    case OBJ_NATIVE:
+      printf("<native fn>");
+      break;
+    case OBJ_FUNCTION:
+      printFunction(AS_FUNCTION(value));
+      break;
   }
+}
+
+static void printFunction(ObjFunction* function) {
+  if (function->name)
+    printf("<fn %s>", function->name->chars);
+  else
+    printf("<script>");
 }
