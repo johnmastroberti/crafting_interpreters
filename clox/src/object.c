@@ -70,6 +70,10 @@ void freeObjects(void) {
 
 static void freeObject(Obj* object) {
   switch (object->type) {
+    case OBJ_CLOSURE: {
+      free(object);
+      break;
+    }
     case OBJ_FUNCTION: {
       ObjFunction* function = (ObjFunction*) object;
       free_Chunk(&function->chunk);
@@ -103,6 +107,7 @@ static uint32_t hashString(const char* key, int length) {
 ObjFunction* newFunction(void) {
   ObjFunction* function = ALLOCATE_OBJ(ObjFunction, OBJ_FUNCTION);
   function->arity = 0;
+  function->upvalueCount = 0;
   function->name = NULL;
   init_Chunk(&function->chunk);
   return function;
@@ -112,4 +117,10 @@ ObjNative* newNative(NativeFn function) {
   ObjNative* native = ALLOCATE_OBJ(ObjNative, OBJ_NATIVE);
   native->function = function;
   return native;
+}
+
+ObjClosure* newClosure(ObjFunction* function) {
+  ObjClosure* closure = ALLOCATE_OBJ(ObjClosure, OBJ_CLOSURE);
+  closure->function = function;
+  return closure;
 }

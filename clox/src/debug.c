@@ -32,6 +32,7 @@ static void init_op_names(void) {
   ADD_OP_NAME(OP_JUMP_IF_FALSE);
   ADD_OP_NAME(OP_LOOP);
   ADD_OP_NAME(OP_CALL);
+  ADD_OP_NAME(OP_CLOSURE);
 }
 
 void disassembleChunk(Chunk* chunk, const char* name) {
@@ -119,6 +120,14 @@ int disassembleInstruction(Chunk* chunk, int offset) {
     case OP_PRINT:
     case OP_POP:
       return simpleInstruction(op_names[instruction], offset);
+    case OP_CLOSURE: {
+      offset++;
+      uint8_t constant = chunk->code.data[offset++];
+      printf("%-16s %4d ", "OP_CLOSURE", constant);
+      printValue(chunk->constants.data[constant]);
+      printf("\n");
+      return offset;
+    }
     default:
       printf("Unknown opcode %d\n", instruction);
       return offset + 1;
